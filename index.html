@@ -36,17 +36,16 @@
     }
   </script>
 
-  <!-- Google Fonts (思源黑體 + JetBrains Mono) & FontAwesome -->
+  <!-- Google Fonts (Noto Sans TC + JetBrains Mono) & FontAwesome -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <!-- Supabase 官方 JS SDK (用於圖床 Storage 上傳與即時連動) -->
+  <!-- Supabase 官方 JS SDK (圖床 Storage + 即時推播 Realtime) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* 全域文字預設為 Noto Sans TC 思源黑體，舒展字距 */
     html, body, button, input, textarea, select, p, span, div, h1, h2, h3, h4, h5, h6, label, a {
       font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       letter-spacing: 0.035em;
@@ -56,7 +55,6 @@
       letter-spacing: 0.045em;
     }
 
-    /* 確保 FontAwesome 圖示字型不被中文字型覆蓋 */
     .fa, .fas, .fa-solid, .fa-regular,
     [class*="fa-"], [class*="fa-"]::before, [class*="fa-"]::after {
       font-family: "Font Awesome 6 Free" !important;
@@ -118,7 +116,7 @@
       <div class="flex items-center gap-2">
         <div id="cloudSyncIndicator" class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border-2 border-craft-line craft-shadow-sm text-xs text-craft-line font-bold">
           <span id="cloudSyncDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span id="cloudSyncText">SUPABASE CONNECTING</span>
+          <span id="cloudSyncText">SUPABASE CLOUD ACTIVE</span>
         </div>
         <div class="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border-2 border-craft-line craft-shadow-sm text-xs text-craft-line font-bold">
           <span class="w-2.5 h-2.5 rounded-full bg-craft-yellow animate-pulse"></span>
@@ -283,10 +281,8 @@
 
         <!-- 主內容視窗：影片 vs 故事插畫卡片 -->
         <div class="relative w-full h-full flex items-center justify-center bg-[#1B2127] overflow-hidden">
-          <!-- 影片播放器 (強制 9:16 填滿) -->
           <video id="sideVideo" class="w-full h-full object-cover hidden" playsinline loop muted></video>
 
-          <!-- 故事插畫動態卡片 (備用/圖文模式) -->
           <div id="sideFallbackCard" class="w-full h-full flex flex-col justify-between p-6 pt-20 pb-20 text-center relative overflow-hidden bg-gradient-to-b from-[#2A333C] via-[#1E252C] to-[#12161A]">
             <div class="relative z-10 my-auto px-3">
               <div id="sideCupIconPreview" class="w-20 h-20 mx-auto mb-4 rounded-2xl bg-white border-2 border-craft-line craft-shadow-sm flex items-center justify-center overflow-hidden">
@@ -303,7 +299,6 @@
             </div>
           </div>
 
-          <!-- 掃描線效果 -->
           <div class="absolute inset-0 pointer-events-none overflow-hidden opacity-30">
             <div class="w-full h-1 bg-craft-yellow shadow-md shadow-craft-yellow animate-scanline"></div>
           </div>
@@ -332,7 +327,7 @@
     <!-- 底端導引標籤 -->
     <div class="absolute bottom-3 left-6 pointer-events-none text-xs font-bold text-craft-line flex items-center gap-2 bg-white/90 px-3 py-1.5 rounded-xl border-2 border-craft-line craft-shadow-sm z-10">
       <i class="fa-solid fa-hand-pointer text-craft-yellow"></i>
-      <span>點擊立體鋼杯立即播放 • 可左右拖曳輸送產線</span>
+      <span>點擊立體鋼杯立即播放 • 鋼杯將自動滑送至中央檢測站</span>
     </div>
     <div class="absolute bottom-3 right-6 pointer-events-none text-xs font-mono font-black text-craft-line bg-white/90 px-3 py-1.5 rounded-xl border-2 border-craft-line craft-shadow-sm z-10">
       <span id="lineSpeedIndicator">SPEED: 1.0x</span> | <span id="conveyorTotalCups">CUPS: 5</span>
@@ -393,7 +388,7 @@
           <div class="flex items-center justify-between mb-1.5">
             <label class="block text-xs font-black text-craft-line flex items-center gap-1.5">
               <span class="w-4 h-4 rounded-full bg-craft-yellow text-craft-line flex items-center justify-center text-[10px] font-black border border-craft-line">2</span>
-              <span>選擇杯身款式 (工坊預設杯款)</span>
+              <span>選擇杯身款式 (雲端工坊預設杯款)</span>
             </label>
             <span id="selectedPresetModelName" class="text-xs text-craft-blueDark font-mono font-black">晨光銀拉絲鋼杯</span>
           </div>
@@ -573,7 +568,10 @@
 
       <!-- 分頁 2: 預設杯款庫管理 -->
       <div id="tabPresetModelsContent" class="flex-1 overflow-y-auto py-3 space-y-3 hidden">
-        <p class="text-[11px] text-craft-textMuted font-bold">訪客新增鋼杯時，可直接挑選下列官方款式（支援自訂編輯與擴充）：</p>
+        <div class="flex items-center justify-between">
+          <p class="text-[11px] text-craft-textMuted font-bold">所有裝置即時同步官方款式：</p>
+          <span class="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold">雲端同步</span>
+        </div>
         <div id="managePresetModelsList" class="space-y-2"></div>
         
         <div class="p-3 rounded-2xl bg-white border-2 border-craft-line craft-shadow-sm">
@@ -585,7 +583,7 @@
               <input type="file" id="newPresetFileInput" accept="image/png,image/webp" class="hidden">
             </label>
             <button type="button" id="addNewPresetModelBtn" class="w-full py-1.5 bg-craft-yellow hover:bg-craft-yellowHover rounded-lg text-xs text-craft-line font-black border-2 border-craft-line craft-shadow-sm transition">
-              儲存並加入預設庫
+              儲存並同步至雲端庫
             </button>
           </div>
         </div>
@@ -601,7 +599,7 @@
   </div>
 
   <!-- ========================================================================= -->
-  <!-- 編輯預設杯款 Modal (Edit Preset Model Modal)                               -->
+  <!-- 編輯預設杯款 Modal                                                         -->
   <!-- ========================================================================= -->
   <div id="editPresetModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 opacity-0 pointer-events-none transition-all duration-300">
     <div class="absolute inset-0 bg-[#2A333C]/60 backdrop-blur-sm" id="editPresetBackdrop"></div>
@@ -660,7 +658,7 @@
 
         <div class="flex items-center justify-end space-x-2 pt-2 border-t-2 border-craft-line">
           <button type="button" id="cancelEditPresetBtn" class="px-4 py-1.5 rounded-xl bg-white hover:bg-craft-bgDark border-2 border-craft-line craft-shadow-sm text-xs font-bold text-craft-line transition">取消</button>
-          <button type="submit" class="px-4 py-1.5 rounded-xl bg-craft-yellow hover:bg-craft-yellowHover text-craft-line font-black text-xs border-2 border-craft-line craft-shadow transition">儲存杯款</button>
+          <button type="submit" class="px-4 py-1.5 rounded-xl bg-craft-yellow hover:bg-craft-yellowHover text-craft-line font-black text-xs border-2 border-craft-line craft-shadow transition">儲存並同步</button>
         </div>
       </form>
     </div>
@@ -692,7 +690,6 @@
         </button>
       </div>
 
-      <!-- 審核開關控制卡片 -->
       <div class="my-3 p-3.5 rounded-xl bg-white border-2 border-craft-line craft-shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div>
           <div class="flex items-center gap-2">
@@ -859,7 +856,7 @@
       }
     }
 
-    /* 官方預設杯款資料庫 (支援 localStorage 永久保存增刪改) */
+    /* 官方預設杯款資料庫 (支援雲端與離線 fallback) */
     const defaultPresetModels = [
       {
         id: 'model-silver',
@@ -869,7 +866,6 @@
         colorSideA: '#B6C7D5',
         colorSideB: '#8EA6BB',
         stroke: '#2A333C',
-        badgeBg: 'from-slate-300 to-slate-100',
         imgUrl: null
       },
       {
@@ -880,7 +876,6 @@
         colorSideA: '#F0C94F',
         colorSideB: '#D6A125',
         stroke: '#2A333C',
-        badgeBg: 'from-amber-300 to-yellow-400',
         imgUrl: null
       },
       {
@@ -891,7 +886,6 @@
         colorSideA: '#333D46',
         colorSideB: '#1E252C',
         stroke: '#2A333C',
-        badgeBg: 'from-zinc-700 to-zinc-900',
         imgUrl: null
       },
       {
@@ -902,41 +896,11 @@
         colorSideA: '#76B370',
         colorSideB: '#498744',
         stroke: '#2A333C',
-        badgeBg: 'from-emerald-600 to-teal-800',
         imgUrl: null
       }
     ];
 
-    let presetModels = [];
-    try {
-      const savedPresets = localStorage.getItem('story_factory_presets');
-      if (savedPresets) {
-        presetModels = JSON.parse(savedPresets);
-      } else {
-        presetModels = [...defaultPresetModels];
-      }
-    } catch (e) {
-      presetModels = [...defaultPresetModels];
-    }
-
-    function savePresetsToStorage() {
-      try {
-        const clean = presetModels.map(m => ({
-          id: m.id,
-          name: m.name,
-          theme: m.theme,
-          colorTop: m.colorTop,
-          colorSideA: m.colorSideA,
-          colorSideB: m.colorSideB,
-          stroke: m.stroke || '#2A333C',
-          badgeBg: m.badgeBg || 'from-amber-200 to-yellow-300',
-          imgUrl: m.imgUrl || null
-        }));
-        localStorage.setItem('story_factory_presets', JSON.stringify(clean));
-      } catch (err) {
-        console.warn('無法保存杯款至本機:', err);
-      }
-    }
+    let presetModels = [...defaultPresetModels];
 
     function ensurePresetImage(model) {
       if (model.imgUrl && (!model.imgElement || model.imgElement.src !== model.imgUrl)) {
@@ -946,6 +910,67 @@
       }
     }
     presetModels.forEach(ensurePresetImage);
+
+    /* 雲端同步預設杯款庫 (Supabase table: preset_models) */
+    async function loadPresetModelsFromSupabase() {
+      if (!isCloudEnabled || !supabaseClient) return;
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('preset_models')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) {
+          console.warn('[PresetModels] 雲端讀取警告 (可能尚未建立 preset_models 表):', error.message);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          presetModels = data.map(item => ({
+            id: item.id,
+            name: item.name,
+            theme: item.theme || 'custom',
+            colorTop: item.color_top || '#DCE5EC',
+            colorSideA: item.color_side_a || '#B6C7D5',
+            colorSideB: item.color_side_b || '#8EA6BB',
+            stroke: item.stroke || '#2A333C',
+            imgUrl: item.img_url || null
+          }));
+          presetModels.forEach(ensurePresetImage);
+          renderPresetCupOptions();
+          renderPresetModelsManageList();
+          drawConveyor();
+          console.log(`✅ 已從 Supabase 同步 ${presetModels.length} 款官方預設杯款！`);
+        } else {
+          // 若雲端為空，自動上傳預設的 4 款杯子至 Supabase
+          console.log('雲端預設杯款為空，正在初始化預設杯款至 Supabase...');
+          for (const m of defaultPresetModels) {
+            await supabaseClient.from('preset_models').insert({
+              id: m.id,
+              name: m.name,
+              theme: m.theme,
+              color_top: m.colorTop,
+              color_side_a: m.colorSideA,
+              color_side_b: m.colorSideB,
+              img_url: m.imgUrl
+            });
+          }
+        }
+
+        // 監聽杯款庫即時變動
+        supabaseClient
+          .channel('preset_models_realtime')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'preset_models' }, () => {
+            console.log('[Realtime] 接收到預設杯款庫變更，重新加載...');
+            loadPresetModelsFromSupabase();
+          })
+          .subscribe();
+
+      } catch (err) {
+        console.warn('同步預設杯款發生例外:', err);
+      }
+    }
 
     /* 產線鋼杯故事資料 */
     const defaultSampleStories = [
@@ -1016,6 +1041,13 @@
     let conveyorSpeed = 1.0;
     let baseSpeedPx = 1.2;
     let conveyorOffset = 0;
+
+    // 滑順定位目標 offset (點擊杯子時平滑移動到中間)
+    let isNavigatingToTarget = false;
+    let targetOffset = 0;
+    let lastLaserTriggeredCupId = null;
+    let manualLockTimer = null; // 點擊時鎖定播放，避免激光光幕誤覆蓋
+
     let isDragging = false;
     let dragStartX = 0;
     let dragStartOffset = 0;
@@ -1087,7 +1119,7 @@
     }
     window.addEventListener('resize', resizeCanvas);
 
-    /* 等角透視 (Isometric) 雙排產線與工廠背景繪圖 */
+    /* 等角透視雙排產線與工廠背景繪圖 */
     function drawConveyor() {
       const rect = canvas.getBoundingClientRect();
       const w = rect.width;
@@ -1099,15 +1131,12 @@
       const centerX = w / 2;
       const beltThickness = 28;
 
-      const tier1BaseY = h * 0.38; // 第一排（上層）
-      const tier2BaseY = h * 0.78; // 第二排（下層）
-      const floorY = h * 0.72; // 工廠地面水平線
+      const tier1BaseY = h * 0.38;
+      const tier2BaseY = h * 0.78;
+      const floorY = h * 0.72;
 
-      /* ----------------------------------------------------------------------- */
-      /* 1. 工廠背景：牆面、工業管線、立柱、大門、按鈕與溫暖地磚透視格紋        */
-      /* ----------------------------------------------------------------------- */
+      /* 1. 工廠背景 */
       ctx.save();
-      // 上半部工廠牆面背景（溫暖灰米色漸層）
       const wallGrad = ctx.createLinearGradient(0, 0, 0, floorY);
       wallGrad.addColorStop(0, '#EAE3D3');
       wallGrad.addColorStop(0.65, '#E2D9C6');
@@ -1115,7 +1144,6 @@
       ctx.fillStyle = wallGrad;
       ctx.fillRect(0, 0, w, floorY);
 
-      // 牆面垂直板片拼接線
       ctx.strokeStyle = 'rgba(42, 51, 60, 0.08)';
       ctx.lineWidth = 2;
       const panelSpacing = 160;
@@ -1126,7 +1154,6 @@
         ctx.stroke();
       }
 
-      // 背景橫向電纜線與小管線 (三條細管)
       ctx.strokeStyle = '#9BB0C1';
       ctx.lineWidth = 3.5;
       [58, 70, 82].forEach(py => {
@@ -1136,37 +1163,7 @@
         ctx.stroke();
       });
 
-      // 背景折線工業排氣通風管道 (Zig-zag pipes)
-      ctx.strokeStyle = '#8299AB';
-      ctx.lineWidth = 14;
-      ctx.lineCap = 'square';
-      ctx.lineJoin = 'miter';
-      
-      // 左側通風折管
-      ctx.beginPath();
-      ctx.moveTo(-20, 60);
-      ctx.lineTo(110, 60);
-      ctx.lineTo(110, 180);
-      ctx.lineTo(60, 180);
-      ctx.lineTo(60, 240);
-      ctx.stroke();
-
-      // 右側通風折管
-      ctx.beginPath();
-      ctx.moveTo(w - 380, 80);
-      ctx.lineTo(w - 240, 80);
-      ctx.lineTo(w - 240, 190);
-      ctx.lineTo(w - 170, 190);
-      ctx.lineTo(w - 170, 70);
-      ctx.lineTo(w + 20, 70);
-      ctx.stroke();
-
-      // 管線深色外框描邊 (手繪感)
-      ctx.strokeStyle = '#2A333C';
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-
-      // 工廠安全門 (無黑邊，採用自然色階對比)
+      // 工廠安全門
       const doorX = Math.min(w - 180, w * 0.78);
       if (w > 560) {
         const doorW = 86;
@@ -1175,10 +1172,8 @@
 
         ctx.fillStyle = 'rgba(42, 51, 60, 0.08)';
         ctx.fillRect(doorX - 6, doorY - 6, doorW + 12, doorH + 6);
-
         ctx.fillStyle = '#C8D3DC';
         ctx.fillRect(doorX - 4, doorY - 4, doorW + 8, doorH + 4);
-
         ctx.fillStyle = '#F4BF7E';
         ctx.fillRect(doorX, doorY, doorW, doorH);
 
@@ -1211,14 +1206,12 @@
         }
       }
 
-      // 背景巨型工廠立柱（米色柱體 + 亮橘警示帶）
+      // 巨型工廠立柱
       const pillarPositions = [w * 0.12, w * 0.32, w * 0.68, w * 0.88];
       const pillarW = Math.max(54, w * 0.065);
-
       pillarPositions.forEach(px => {
         ctx.fillStyle = '#F4EDE1';
         ctx.fillRect(px, 0, pillarW, floorY);
-
         ctx.fillStyle = 'rgba(42, 51, 60, 0.06)';
         ctx.fillRect(px, 0, pillarW * 0.32, floorY);
 
@@ -1233,7 +1226,7 @@
         ctx.fillRect(px + pillarW * 0.32, stripeY, pillarW * 0.2, stripeH);
       });
 
-      // 下半部：暖黃溫暖磁磚地面 (Tiled Factory Floor)
+      // 暖黃地磚地面
       const floorGrad = ctx.createLinearGradient(0, floorY, 0, h);
       floorGrad.addColorStop(0, '#FFE8CA');
       floorGrad.addColorStop(0.5, '#FBDCB5');
@@ -1241,7 +1234,7 @@
       ctx.fillStyle = floorGrad;
       ctx.fillRect(0, floorY, w, h - floorY);
 
-      // 地面地磚接縫透視網格
+      // 地面格紋
       ctx.strokeStyle = 'rgba(212, 168, 126, 0.45)';
       ctx.lineWidth = 1.5;
       const tileGridW = 75;
@@ -1258,7 +1251,7 @@
         ctx.stroke();
       }
 
-      // 地面光滑反光光斑 (Glossy floor reflections)
+      // 地面光滑反光
       const shinySpots = [w * 0.22, w * 0.48, w * 0.74];
       shinySpots.forEach(sx => {
         const shineGrad = ctx.createLinearGradient(sx, floorY, sx, floorY + 130);
@@ -1269,19 +1262,13 @@
         ctx.fillRect(sx - 16, floorY + 6, 32, 120);
       });
 
-      /* ----------------------------------------------------------------------- */
-      /* 2. 中央檢測站上方天花板工業排風懸吊管 (Connected to Ceiling)            */
-      /* ----------------------------------------------------------------------- */
+      // 中央檢測站懸吊管
       const ductY = Math.max(0, tier1BaseY - 140);
-      const ductLeftX = centerX - 130;
-      const ductRightX = centerX + 130;
-
       function drawCeilingDuct(pipeX, isLeft) {
         ctx.save();
         ctx.fillStyle = '#5A788E';
         ctx.strokeStyle = '#2A333C';
         ctx.lineWidth = 3;
-
         ctx.beginPath();
         ctx.rect(pipeX - 14, 0, 28, ductY);
         ctx.fill();
@@ -1289,81 +1276,17 @@
 
         ctx.fillStyle = 'rgba(255, 255, 255, 0.32)';
         ctx.fillRect(pipeX - 6, 0, 8, ductY);
-
         ctx.fillStyle = '#445D70';
         ctx.fillRect(pipeX - 19, ductY * 0.45, 38, 12);
         ctx.strokeRect(pipeX - 19, ductY * 0.45, 38, 12);
-
-        ctx.fillStyle = '#5A788E';
-        const bendDir = isLeft ? -1 : 1;
-        ctx.beginPath();
-        ctx.moveTo(pipeX - 14 * bendDir, ductY * 0.5);
-        ctx.lineTo(pipeX + 38 * bendDir, ductY * 0.7);
-        ctx.lineTo(pipeX + 38 * bendDir, ductY * 0.7 + 24);
-        ctx.lineTo(pipeX - 14 * bendDir, ductY * 0.5 + 24);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
         ctx.restore();
       }
-      drawCeilingDuct(ductLeftX, true);
-      drawCeilingDuct(ductRightX, false);
+      drawCeilingDuct(centerX - 130, true);
+      drawCeilingDuct(centerX + 130, false);
 
-      /* ----------------------------------------------------------------------- */
-      /* 3. 中央檢測站：輸送帶穿越洞口與安全門框 (Machine Tunnel Portals)        */
-      /* ----------------------------------------------------------------------- */
-      function drawTunnelPortal(baseY) {
-        const portalW = 44;
-        const portalH = 92;
-        const screenMargin = 175;
-
-        const leftPX = centerX - screenMargin - portalW;
-        const leftPY = baseY + (leftPX - centerX) * BELT_SLOPE - portalH + 2;
-
-        ctx.save();
-        ctx.fillStyle = '#182026';
-        ctx.strokeStyle = '#2A333C';
-        ctx.lineWidth = 3.5;
-        ctx.fillRect(leftPX, leftPY, portalW, portalH);
-        ctx.strokeRect(leftPX, leftPY, portalW, portalH);
-
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = '#FFA242';
-        ctx.strokeRect(leftPX - 2, leftPY - 2, portalW + 4, portalH + 4);
-
-        ctx.fillStyle = '#FFA242';
-        ctx.fillRect(leftPX - 4, leftPY - 12, portalW + 8, 10);
-        ctx.strokeStyle = '#2A333C';
-        ctx.lineWidth = 2.5;
-        ctx.strokeRect(leftPX - 4, leftPY - 12, portalW + 8, 10);
-
-        const rightPX = centerX + screenMargin;
-        const rightPY = baseY + (rightPX - centerX) * BELT_SLOPE - portalH + 2;
-
-        ctx.fillStyle = '#182026';
-        ctx.strokeStyle = '#2A333C';
-        ctx.lineWidth = 3.5;
-        ctx.fillRect(rightPX, rightPY, portalW, portalH);
-        ctx.strokeRect(rightPX, rightPY, portalW, portalH);
-
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = '#FFA242';
-        ctx.strokeRect(rightPX - 2, rightPY - 2, portalW + 4, portalH + 4);
-
-        ctx.fillStyle = '#FFA242';
-        ctx.fillRect(rightPX - 4, rightPY - 12, portalW + 8, 10);
-        ctx.strokeStyle = '#2A333C';
-        ctx.lineWidth = 2.5;
-        ctx.strokeRect(rightPX - 4, rightPY - 12, portalW + 8, 10);
-        ctx.restore();
-      }
-      drawTunnelPortal(tier1BaseY);
-      drawTunnelPortal(tier2BaseY);
-
-      // 中央垂直金黃檢測光幕
+      // 中央光幕
       const laserZoneWidth = 220;
       const laserX = centerX - laserZoneWidth / 2;
-
       const laserGrad = ctx.createLinearGradient(laserX, 0, laserX + laserZoneWidth, 0);
       laserGrad.addColorStop(0, 'rgba(229, 184, 59, 0)');
       laserGrad.addColorStop(0.25, 'rgba(229, 184, 59, 0.14)');
@@ -1387,21 +1310,16 @@
 
       activeClickableCups = [];
 
-      /* 4. 繪製工業輸送帶軌道與支撐腿 */
       function drawBeltLegs(baseY, isUpperTier) {
         ctx.save();
         const legSpacing = 280;
         const offsetShift = isUpperTier ? 0 : 140;
         const fixedStartLegX = ((centerX + offsetShift) % legSpacing);
-        
-        const legBottomY = isUpperTier 
-          ? Math.min(h - 35, floorY + 70) 
-          : h + 50;
+        const legBottomY = isUpperTier ? Math.min(h - 35, floorY + 70) : h + 50;
         const legWidthScale = isUpperTier ? 0.88 : 1.15;
 
         for (let x = fixedStartLegX - legSpacing; x < w + legSpacing; x += legSpacing) {
           const ly = baseY + (x - centerX) * BELT_SLOPE;
-
           ctx.save();
           if (isUpperTier) {
             ctx.fillStyle = 'rgba(42, 51, 60, 0.16)';
@@ -1431,33 +1349,6 @@
           ctx.closePath();
           ctx.fill();
           ctx.stroke();
-
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
-          ctx.lineWidth = isUpperTier ? 1.5 : 2;
-          ctx.beginPath();
-          ctx.moveTo(x + 1, ly + beltThickness + 6);
-          ctx.lineTo(x + 1, legBottomY);
-          ctx.stroke();
-
-          if (isUpperTier) {
-            ctx.fillStyle = '#3E5669';
-            ctx.strokeStyle = '#2A333C';
-            ctx.lineWidth = 2;
-            const padW = 36 * legWidthScale;
-            const padH = 10 * legWidthScale;
-            ctx.beginPath();
-            ctx.roundRect(x - padW / 2, legBottomY - 5, padW, padH, 3);
-            ctx.fill();
-            ctx.stroke();
-
-            ctx.fillStyle = '#E5B83B';
-            const rivetOffset = 11 * legWidthScale;
-            ctx.beginPath();
-            ctx.arc(x - rivetOffset, legBottomY, 2 * legWidthScale, 0, Math.PI * 2);
-            ctx.arc(x + rivetOffset, legBottomY, 2 * legWidthScale, 0, Math.PI * 2);
-            ctx.fill();
-          }
-
           ctx.restore();
         }
         ctx.restore();
@@ -1465,10 +1356,6 @@
 
       function drawBeltBody(baseY) {
         ctx.save();
-        const legSpacing = 280;
-        const fixedStartLegX = (centerX % legSpacing);
-
-        // 側面厚板
         ctx.fillStyle = '#2A4054';
         ctx.strokeStyle = '#2A333C';
         ctx.lineWidth = 3;
@@ -1481,16 +1368,6 @@
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = '#1A2936';
-        ctx.beginPath();
-        ctx.moveTo(0, baseY - centerX * BELT_SLOPE + beltThickness - 6);
-        ctx.lineTo(w, baseY + (w - centerX) * BELT_SLOPE + beltThickness - 6);
-        ctx.lineTo(w, baseY + (w - centerX) * BELT_SLOPE + beltThickness);
-        ctx.lineTo(0, baseY - centerX * BELT_SLOPE + beltThickness);
-        ctx.closePath();
-        ctx.fill();
-
-        // 輸送履帶頂面
         ctx.fillStyle = '#39536A';
         ctx.beginPath();
         ctx.moveTo(0, baseY - centerX * BELT_SLOPE - 16);
@@ -1499,13 +1376,6 @@
         ctx.lineTo(0, baseY - centerX * BELT_SLOPE);
         ctx.closePath();
         ctx.fill();
-        ctx.stroke();
-
-        ctx.strokeStyle = '#85A8C2';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, baseY - centerX * BELT_SLOPE);
-        ctx.lineTo(w, baseY + (w - centerX) * BELT_SLOPE);
         ctx.stroke();
 
         const slatSpacing = 28;
@@ -1518,57 +1388,6 @@
           ctx.moveTo(sx - 10, sy - 16);
           ctx.lineTo(sx + 8, sy);
           ctx.stroke();
-        }
-
-        const rollerSpacing = legSpacing;
-        for (let rx = fixedStartLegX - rollerSpacing; rx < w + rollerSpacing; rx += rollerSpacing) {
-          const ry = baseY + (rx - centerX) * BELT_SLOPE + beltThickness / 2;
-
-          ctx.save();
-          const rollGrad = ctx.createLinearGradient(rx - 16, 0, rx + 16, 0);
-          rollGrad.addColorStop(0, '#2D4456');
-          rollGrad.addColorStop(0.3, '#7498B2');
-          rollGrad.addColorStop(0.6, '#B2D2E8');
-          rollGrad.addColorStop(1, '#253B4B');
-
-          ctx.fillStyle = rollGrad;
-          ctx.strokeStyle = '#2A333C';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.roundRect(rx - 16, ry - 7, 32, 18, 5);
-          ctx.fill();
-          ctx.stroke();
-
-          ctx.fillStyle = '#FFA242';
-          ctx.beginPath();
-          ctx.arc(rx, ry + 2, 3.5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#2A333C';
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        const arrowSpacing = 200;
-        const arrowShift = conveyorOffset % arrowSpacing;
-        for (let ax = arrowShift - arrowSpacing; ax < w + arrowSpacing; ax += arrowSpacing) {
-          const ay = baseY + (ax - centerX) * BELT_SLOPE + 7;
-          ctx.save();
-          ctx.fillStyle = '#FFA242';
-          ctx.strokeStyle = '#2A333C';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(ax, ay);
-          ctx.lineTo(ax + 15, ay);
-          ctx.lineTo(ax + 15, ay - 3.5);
-          ctx.lineTo(ax + 23, ay + 3);
-          ctx.lineTo(ax + 15, ay + 9.5);
-          ctx.lineTo(ax + 15, ay + 6);
-          ctx.lineTo(ax, ay + 6);
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-          ctx.restore();
         }
         ctx.restore();
       }
@@ -1612,33 +1431,10 @@
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.ellipse(cx, cy + h - ry, rx - 2, ry - 2, 0, 0, Math.PI);
-        ctx.fillStyle = '#2A333C';
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.ellipse(cx, cy + ry + 6, rx - 1, ry - 1, 0, 0, Math.PI);
-        ctx.strokeStyle = '#FFFFFF';
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        ctx.beginPath();
         ctx.ellipse(cx, cy + ry, rx, ry, 0, 0, Math.PI * 2);
         ctx.fillStyle = preset.colorTop || '#DCE5EC';
         ctx.fill();
         ctx.strokeStyle = '#2A333C';
-        ctx.lineWidth = 3.5;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.ellipse(cx, cy + ry, rx * 0.45, ry * 0.45, 0, 0, Math.PI * 2);
-        ctx.fillStyle = '#2A333C';
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.moveTo(cx - rx * 0.45, cy + ry * 2);
-        ctx.lineTo(cx - rx * 0.45, cy + h - ry * 2);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
         ctx.lineWidth = 3.5;
         ctx.stroke();
         ctx.restore();
@@ -1681,7 +1477,7 @@
         ctx.font = 'bold 13.5px "Noto Sans TC", system-ui, sans-serif';
         ctx.fillStyle = '#2A333C';
         ctx.textAlign = 'center';
-        ctx.fillText(isUnderLaser ? `⚡ 掃描中` : title, cx, tagY + 21);
+        ctx.fillText(isUnderLaser ? `⚡ 檢測展示中` : title, cx, tagY + 21);
 
         ctx.font = 'bold 12px "Noto Sans TC", system-ui, sans-serif';
         ctx.fillStyle = isPlaying ? '#2A333C' : '#687787';
@@ -1726,7 +1522,6 @@
         drawCraftSpeechBadge(cupX, cupY - 20, cup, isCurrentPlaying, isUnderLaser);
       }
 
-      // 繪製軌道
       drawBeltLegs(tier1BaseY, true);
       drawBeltBody(tier1BaseY);
       drawBeltLegs(tier2BaseY, false);
@@ -1748,12 +1543,8 @@
         }
       }
 
-      if (tier2Cups.length === 0 && tier1Cups.length > 0) {
-        tier2Cups.push(...tier1Cups);
-      }
-      if (tier1Cups.length === 0 && tier2Cups.length > 0) {
-        tier1Cups.push(...tier2Cups);
-      }
+      if (tier2Cups.length === 0 && tier1Cups.length > 0) tier2Cups.push(...tier1Cups);
+      if (tier1Cups.length === 0 && tier2Cups.length > 0) tier1Cups.push(...tier2Cups);
 
       const tier1Slots = Math.max(tier1Cups.length, 3);
       const tier2Slots = Math.max(tier2Cups.length, 3);
@@ -1761,7 +1552,7 @@
       const spanTier1 = tier1Slots * ISO_CUP_SPACING;
       const spanTier2 = tier2Slots * ISO_CUP_SPACING;
 
-      // 繪製第一排（上層）
+      // 第一排（上層）
       for (let s = 0; s < tier1Slots; s++) {
         const item = tier1Cups[s % tier1Cups.length];
         if (!item || !item.cup) continue;
@@ -1776,7 +1567,9 @@
         const isCurrentPlaying = (origIdx === currentPlayingIndex);
         const isUnderLaser = Math.abs(cupX - centerX) < 90;
 
-        if (isUnderLaser && currentPlayingIndex !== origIdx && !isDragging) {
+        // 當且僅當「未被手動點擊鎖定」且「是剛進入光幕的新杯子」才自動切換
+        if (isUnderLaser && !manualLockTimer && !isDragging && lastLaserTriggeredCupId !== cup.id) {
+          lastLaserTriggeredCupId = cup.id;
           playStoryInSideScreen(origIdx);
         }
 
@@ -1785,14 +1578,15 @@
 
         activeClickableCups.push({
           index: origIdx,
-          x: cupX - ISO_CUP_RADIUS_X - 15,
-          y: cupY - 80,
-          w: ISO_CUP_RADIUS_X * 2 + 30,
-          h: ISO_CUP_HEIGHT + 90
+          x: cupX - ISO_CUP_RADIUS_X - 25,
+          y: cupY - 90,
+          w: ISO_CUP_RADIUS_X * 2 + 50,
+          h: ISO_CUP_HEIGHT + 100,
+          cupX: cupX
         });
       }
 
-      // 繪製第二排（下層）
+      // 第二排（下層）
       for (let s = 0; s < tier2Slots; s++) {
         const item = tier2Cups[s % tier2Cups.length];
         if (!item || !item.cup) continue;
@@ -1812,17 +1606,56 @@
 
         activeClickableCups.push({
           index: origIdx,
-          x: cupX - ISO_CUP_RADIUS_X - 15,
-          y: cupY - 80,
-          w: ISO_CUP_RADIUS_X * 2 + 30,
-          h: ISO_CUP_HEIGHT + 90
+          x: cupX - ISO_CUP_RADIUS_X - 25,
+          y: cupY - 90,
+          w: ISO_CUP_RADIUS_X * 2 + 50,
+          h: ISO_CUP_HEIGHT + 100,
+          cupX: cupX
         });
+      }
+    }
+
+    /* 關鍵修復：點擊鋼杯時立即播放並滑送至中央 */
+    function selectAndFocusCup(cupIndex, currentCupX) {
+      if (cupIndex < 0 || cupIndex >= stories.length) return;
+      const targetCup = stories[cupIndex];
+      if (!targetCup) return;
+
+      console.log(`[Cup Click] 即刻選取杯子 #${cupIndex}:`, targetCup.author);
+
+      // 1. 立刻強制切換播放內容
+      playStoryInSideScreen(cupIndex);
+      showToast(`已選中「${targetCup.author}」的鋼杯！`, 'success');
+
+      // 2. 鎖定自動覆蓋計時器（鎖定 4 秒，確保被點擊的杯子播放權不被路過杯子搶走）
+      if (manualLockTimer) clearTimeout(manualLockTimer);
+      lastLaserTriggeredCupId = targetCup.id;
+      manualLockTimer = setTimeout(() => {
+        manualLockTimer = null;
+      }, 4000);
+
+      // 3. 啟動平滑滑行：將該鋼杯滑送至中央螢幕正下方
+      if (typeof currentCupX === 'number') {
+        const rect = canvas.getBoundingClientRect();
+        const centerX = rect.width / 2;
+        const delta = centerX - currentCupX;
+        targetOffset = conveyorOffset + delta;
+        isNavigatingToTarget = true;
       }
     }
 
     function animate() {
       try {
-        if (!isDragging) {
+        if (isNavigatingToTarget) {
+          // 平滑插值靠攏目標 (Smooth spring ease)
+          const diff = targetOffset - conveyorOffset;
+          if (Math.abs(diff) > 1.5) {
+            conveyorOffset += diff * 0.12;
+          } else {
+            conveyorOffset = targetOffset;
+            isNavigatingToTarget = false;
+          }
+        } else if (!isDragging) {
           conveyorOffset += conveyorSpeed * baseSpeedPx;
         }
         drawConveyor();
@@ -2041,7 +1874,7 @@
 
       updateAuditBadge();
       updateManageBadge();
-      playStoryInSideScreen(0);
+      selectAndFocusCup(0);
       showToast(`已核准「${approved.author}」的鋼杯並送上產線！`);
     };
 
@@ -2084,7 +1917,7 @@
             </div>
           </div>
           <div class="flex items-center gap-1 shrink-0">
-            <button onclick="playStoryInSideScreen(${idx})" class="w-7 h-7 rounded-lg bg-white hover:bg-craft-yellow border-2 border-craft-line flex items-center justify-center text-xs text-craft-line transition" title="播放此杯">
+            <button onclick="selectAndFocusCup(${idx})" class="w-7 h-7 rounded-lg bg-white hover:bg-craft-yellow border-2 border-craft-line flex items-center justify-center text-xs text-craft-line transition" title="播放此杯">
               <i class="fa-solid fa-play"></i>
             </button>
             <button onclick="openEditCupModal(${idx})" class="w-7 h-7 rounded-lg bg-white hover:bg-amber-100 border-2 border-craft-line flex items-center justify-center text-xs text-craft-line transition" title="編輯此杯">
@@ -2119,7 +1952,7 @@
         currentPlayingIndex = 0;
       }
       updateManageBadge();
-      playStoryInSideScreen(currentPlayingIndex);
+      selectAndFocusCup(currentPlayingIndex);
       showToast(`已下架「${deleted.title}」`);
     };
 
@@ -2200,7 +2033,7 @@
       modal.classList.remove('opacity-0', 'pointer-events-none');
     };
 
-    window.deletePresetModel = function(index) {
+    window.deletePresetModel = async function(index) {
       if (index < 0 || index >= presetModels.length) return;
       if (presetModels.length <= 1) {
         showToast('預設杯款庫至少需保留一款！', 'warning');
@@ -2208,7 +2041,15 @@
       }
 
       const [removed] = presetModels.splice(index, 1);
-      savePresetsToStorage();
+
+      // 同步刪除 Supabase 雲端
+      if (isCloudEnabled && supabaseClient) {
+        try {
+          await supabaseClient.from('preset_models').delete().eq('id', removed.id);
+        } catch (e) {
+          console.error('刪除 Supabase 預設杯款失敗:', e);
+        }
+      }
 
       if (selectedPresetModelId === removed.id) {
         selectedPresetModelId = presetModels[0].id;
@@ -2453,13 +2294,10 @@
           return;
         }
 
-        // 若有新圖片，嘗試上傳至 Supabase Storage
         if (editingPresetNewFile && isCloudEnabled) {
           showToast('正在將杯款圖檔同步至雲端...', 'info');
           const uploadedUrl = await uploadFileToSupabaseStorage(editingPresetNewFile, 'preset-models');
-          if (uploadedUrl) {
-            editingPresetImgUrl = uploadedUrl;
-          }
+          if (uploadedUrl) editingPresetImgUrl = uploadedUrl;
         }
 
         targetModel.name = newName;
@@ -2468,7 +2306,22 @@
         targetModel.colorSideA = newColorSide;
         targetModel.colorSideB = newColorSide;
         ensurePresetImage(targetModel);
-        savePresetsToStorage();
+
+        // 同步至 Supabase
+        if (isCloudEnabled && supabaseClient) {
+          try {
+            await supabaseClient.from('preset_models').upsert({
+              id: targetModel.id,
+              name: targetModel.name,
+              color_top: targetModel.colorTop,
+              color_side_a: targetModel.colorSideA,
+              color_side_b: targetModel.colorSideB,
+              img_url: targetModel.imgUrl
+            });
+          } catch (err) {
+            console.error('更新 Supabase 預設杯款失敗:', err);
+          }
+        }
 
         if (selectedPresetModelId === targetModel.id) {
           const nameEl = document.getElementById('selectedPresetModelName');
@@ -2480,7 +2333,7 @@
         renderPresetCupOptions();
         renderEditPresetCupOptions();
         drawConveyor();
-        showToast(`已成功更新官方杯款「${targetModel.name}」！`);
+        showToast(`已成功更新官方杯款「${targetModel.name}」並同步至雲端！`);
       });
 
       document.getElementById('editCupForm')?.addEventListener('submit', async (e) => {
@@ -2523,12 +2376,12 @@
         closeEdit();
         updateManageBadge();
         if (currentPlayingIndex === editingCupIndex) {
-          playStoryInSideScreen(editingCupIndex);
+          selectAndFocusCup(editingCupIndex);
         }
         showToast(`已成功儲存「${targetCup.author}」的鋼杯！`);
       });
 
-      // 品管台分頁切換
+      // 品管台分頁
       const tabLiveCupsBtn = document.getElementById('tabLiveCupsBtn');
       const tabPresetModelsBtn = document.getElementById('tabPresetModelsBtn');
       const tabLiveCupsContent = document.getElementById('tabLiveCupsContent');
@@ -2549,7 +2402,7 @@
         renderPresetModelsManageList();
       });
 
-      // 擴增新預設杯款
+      // 擴增新官方預設杯款（同步至 Supabase）
       let newPresetUploadedImgUrl = null;
       let newPresetUploadedFile = null;
       const presetFileInput = document.getElementById('newPresetFileInput');
@@ -2577,26 +2430,42 @@
         }
 
         if (newPresetUploadedFile && isCloudEnabled) {
-          showToast('正在上傳官方杯款圖檔...', 'info');
+          showToast('正在上傳官方杯款圖檔至雲端...', 'info');
           const uploadedUrl = await uploadFileToSupabaseStorage(newPresetUploadedFile, 'preset-models');
           if (uploadedUrl) newPresetUploadedImgUrl = uploadedUrl;
         }
 
+        const newId = 'model-custom-' + Date.now();
         const newModel = {
-          id: 'model-custom-' + Date.now(),
+          id: newId,
           name: name,
           theme: 'custom',
           colorTop: '#DCE5EC',
           colorSideA: '#B6C7D5',
           colorSideB: '#8EA6BB',
           stroke: '#2A333C',
-          badgeBg: 'from-amber-200 to-yellow-300',
           imgUrl: newPresetUploadedImgUrl || null
         };
         ensurePresetImage(newModel);
 
         presetModels.push(newModel);
-        savePresetsToStorage();
+
+        // 同步至 Supabase
+        if (isCloudEnabled && supabaseClient) {
+          try {
+            await supabaseClient.from('preset_models').insert({
+              id: newId,
+              name: name,
+              theme: 'custom',
+              color_top: '#DCE5EC',
+              color_side_a: '#B6C7D5',
+              color_side_b: '#8EA6BB',
+              img_url: newPresetUploadedImgUrl
+            });
+          } catch (e) {
+            console.error('寫入 Supabase 預設杯款失敗:', e);
+          }
+        }
 
         nameInput.value = '';
         if (presetFileInput) presetFileInput.value = '';
@@ -2606,7 +2475,7 @@
 
         renderPresetModelsManageList();
         renderPresetCupOptions();
-        showToast(`已新增官方杯款「${name}」！`);
+        showToast(`已新增官方杯款「${name}」並同步至所有裝置！`);
       });
 
       // 新增鋼杯表單：自訂 PNG
@@ -2660,7 +2529,7 @@
         clearPngBtn.classList.add('hidden');
       });
 
-      // 新增鋼杯短片
+      // 新增短片
       const videoInput = document.getElementById('newVideoFileInput');
       const videoTip = document.getElementById('uploadVideoTip');
       let uploadedVideoDataUrl = '';
@@ -2771,7 +2640,7 @@
         } else {
           stories.unshift(newCup);
           updateManageBadge();
-          playStoryInSideScreen(0);
+          selectAndFocusCup(0);
           if (successTitle) successTitle.textContent = '鋼杯已刻印並送上產線！';
           if (successDesc) {
             successDesc.textContent = '您的專屬不銹鋼杯已送上工廠雙層立體輸送帶，正在大螢幕中央檢測展示！';
@@ -2883,7 +2752,7 @@
         }
         updateAuditBadge();
         updateManageBadge();
-        playStoryInSideScreen(0);
+        selectAndFocusCup(0);
         showToast(`已批次核准 ${total} 只鋼杯送上產線！`);
       });
 
@@ -2925,8 +2794,7 @@
       document.getElementById('randomCupBtn')?.addEventListener('click', () => {
         if (stories.length > 0) {
           const rand = Math.floor(Math.random() * stories.length);
-          playStoryInSideScreen(rand);
-          showToast(`已選中「${stories[rand].author}」的鋼杯！`);
+          selectAndFocusCup(rand);
         }
       });
 
@@ -2938,11 +2806,11 @@
       });
 
       prevStoryBtn?.addEventListener('click', () => {
-        playStoryInSideScreen(currentPlayingIndex - 1);
+        selectAndFocusCup(currentPlayingIndex - 1);
       });
 
       nextStoryBtn?.addEventListener('click', () => {
-        playStoryInSideScreen(currentPlayingIndex + 1);
+        selectAndFocusCup(currentPlayingIndex + 1);
       });
 
       toggleMuteBtn?.addEventListener('click', () => {
@@ -2952,56 +2820,84 @@
         showToast(isMuted ? '影片已靜音' : '已開啟聲音');
       });
 
-      canvas.addEventListener('click', (e) => {
-        if (isDragging) return;
+      /* 關鍵改善：靈敏雙軌點擊偵測（支援觸控螢幕與滑鼠微動） */
+      let pointerDownX = 0;
+      let pointerDownY = 0;
+      let hasDraggedPointer = false;
+
+      function handleCupHitTest(clientX, clientY) {
         const rect = canvas.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const clickY = e.clientY - rect.top;
+        const clickX = clientX - rect.left;
+        const clickY = clientY - rect.top;
 
         for (let i = activeClickableCups.length - 1; i >= 0; i--) {
           const box = activeClickableCups[i];
           if (clickX >= box.x && clickX <= box.x + box.w && clickY >= box.y && clickY <= box.y + box.h) {
-            playStoryInSideScreen(box.index);
-            showToast(`已選中「${stories[box.index].author}」的鋼杯！`);
-            break;
+            selectAndFocusCup(box.index, box.cupX);
+            return true;
           }
         }
-      });
+        return false;
+      }
 
       canvas.addEventListener('mousedown', (e) => {
+        pointerDownX = e.clientX;
+        pointerDownY = e.clientY;
+        hasDraggedPointer = false;
         isDragging = true;
         dragStartX = e.clientX;
         dragStartOffset = conveyorOffset;
+        isNavigatingToTarget = false;
       });
 
       window.addEventListener('mousemove', (e) => {
         if (isDragging) {
           const deltaX = e.clientX - dragStartX;
+          if (Math.abs(deltaX) > 5) {
+            hasDraggedPointer = true;
+          }
           conveyorOffset = dragStartOffset + deltaX;
         }
       });
 
-      window.addEventListener('mouseup', () => {
-        isDragging = false;
+      window.addEventListener('mouseup', (e) => {
+        if (isDragging) {
+          isDragging = false;
+          if (!hasDraggedPointer) {
+            handleCupHitTest(e.clientX, e.clientY);
+          }
+        }
       });
 
       canvas.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
+          pointerDownX = e.touches[0].clientX;
+          pointerDownY = e.touches[0].clientY;
+          hasDraggedPointer = false;
           isDragging = true;
           dragStartX = e.touches[0].clientX;
           dragStartOffset = conveyorOffset;
+          isNavigatingToTarget = false;
         }
       }, { passive: true });
 
       window.addEventListener('touchmove', (e) => {
         if (isDragging && e.touches.length === 1) {
           const deltaX = e.touches[0].clientX - dragStartX;
+          if (Math.abs(deltaX) > 6) {
+            hasDraggedPointer = true;
+          }
           conveyorOffset = dragStartOffset + deltaX;
         }
       }, { passive: true });
 
-      window.addEventListener('touchend', () => {
-        isDragging = false;
+      window.addEventListener('touchend', (e) => {
+        if (isDragging) {
+          isDragging = false;
+          if (!hasDraggedPointer) {
+            handleCupHitTest(pointerDownX, pointerDownY);
+          }
+        }
       });
     }
 
@@ -3060,7 +2956,7 @@
         supabaseClient
           .channel('cups_realtime')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'cups' }, () => {
-            console.log('[Realtime] 接收到資料庫變更，重新加載...');
+            console.log('[Realtime] 接收到杯子資料庫變更，重新加載...');
             loadCupsFromSupabase();
           })
           .subscribe();
@@ -3085,6 +2981,7 @@
         if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse';
         if (text) text.textContent = 'SUPABASE CLOUD ACTIVE';
         loadCupsFromSupabase();
+        loadPresetModelsFromSupabase();
       } else {
         const dot = document.getElementById('cloudSyncDot');
         const text = document.getElementById('cloudSyncText');
