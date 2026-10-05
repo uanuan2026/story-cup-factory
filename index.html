@@ -2495,29 +2495,3 @@
   </script>
 </body>
 </html>
-```eof
-
----
-
-### 🚀 您現在只需完成以下兩個操作：
-
-#### 步驟 1：在 Supabase SQL Editor 執行一次授權指令（徹底解決電腦上傳失敗）
-請前往您的 [Supabase 後台](https://supabase.com/) ➔ 左側選單點 **「SQL Editor」** ➔ 貼上這段指令並點擊 **「Run」**：
-
-```sql
--- 開啟 Storage 圖床檔案的公開上傳與讀取權限 (解決 403 報錯)
-create policy "允許任何人上傳檔案到圖床"
-on storage.objects for insert
-with check (bucket_id = 'factory-media');
-
-create policy "允許任何人公開讀取圖床檔案"
-on storage.objects for select
-using (bucket_id = 'factory-media');
-
-create policy "允許任何人更新圖床檔案"
-on storage.objects for update
-with check (bucket_id = 'factory-media');
-
-create policy "允許任何人刪除圖床檔案"
-on storage.objects for delete
-using (bucket_id = 'factory-media');
