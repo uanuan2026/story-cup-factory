@@ -171,71 +171,54 @@
   <!-- ========================================================================= -->
   <!-- 模式 B：展覽大螢幕工廠產線模式 (Exhibition Big Screen Mode)               -->
   <!-- ========================================================================= -->
-  <header id="topHeader" class="h-16 border-b-2 border-craft-line bg-white/95 backdrop-blur px-4 sm:px-6 flex items-center justify-between shrink-0 z-30 craft-shadow-sm transition-transform duration-300 ease-in-out">
+  <header class="h-16 border-b-2 border-craft-line bg-white/95 backdrop-blur px-4 sm:px-6 flex items-center justify-between shrink-0 z-30 craft-shadow-sm">
     <div class="flex items-center space-x-3">
       <div class="w-9 h-9 rounded-xl bg-craft-yellow border-2 border-craft-line flex items-center justify-center craft-shadow-sm text-craft-line font-black">
         <i class="fa-solid fa-mug-hot"></i>
       </div>
       <div>
         <h1 class="text-sm sm:text-base font-black tracking-wide text-craft-line flex items-center gap-2">
-          故事工廠 <span class="text-[10px] px-2 py-0.5 rounded-full bg-craft-yellow text-craft-line border border-craft-line font-mono font-bold">LIVE STAGE</span>
+          源源故事工廠 <span class="text-[10px] px-2 py-0.5 rounded-full bg-craft-yellow text-craft-line border border-craft-line font-mono font-bold">LIVE STAGE</span>
         </h1>
         <p class="text-[10px] text-craft-blueDark font-mono font-bold tracking-wider hidden sm:block">ISOMETRIC CRAFT CONVEYOR SYSTEM</p>
       </div>
     </div>
 
-    <!-- 頂部操作群 -->
     <div class="flex items-center space-x-2 sm:space-x-3">
       <button id="backToPortalBtn" class="px-3 py-1.5 rounded-xl bg-white hover:bg-craft-bgDark border-2 border-craft-line craft-shadow-sm text-xs font-bold text-craft-line flex items-center gap-1.5 transition">
         <i class="fa-solid fa-house text-craft-yellow"></i>
         <span class="hidden sm:inline">訪客迎賓頁</span>
       </button>
 
-      <!-- 產線速度切換 -->
       <div class="flex items-center bg-white border-2 border-craft-line rounded-xl p-0.5 text-xs font-mono craft-shadow-sm">
         <button id="speed05x" class="px-2 py-1 rounded-lg text-craft-textMuted font-bold hover:text-craft-line transition">0.5x</button>
         <button id="speed1x" class="px-2 py-1 rounded-lg bg-craft-yellow text-craft-line font-black border border-craft-line shadow-sm transition">1.0x</button>
         <button id="speed2x" class="px-2 py-1 rounded-lg text-craft-textMuted font-bold hover:text-craft-line transition">2.0x</button>
       </div>
 
-      <!-- 隨機選杯 -->
       <button id="randomCupBtn" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-craft-bgDark border-2 border-craft-line craft-shadow-sm text-xs font-bold text-craft-line flex items-center gap-1.5 transition">
         <i class="fa-solid fa-dice text-craft-yellow"></i>
         <span class="hidden sm:inline">隨選</span>
       </button>
 
-      <!-- 審核台按鈕 (需密碼 2340) -->
       <button id="openAuditBtn" class="px-3 py-1.5 rounded-xl bg-white hover:bg-craft-bgDark border-2 border-craft-line craft-shadow-sm text-xs font-bold text-craft-line flex items-center gap-1.5 transition relative">
         <i class="fa-solid fa-clipboard-check text-craft-yellow"></i>
         <span>審核台</span>
-        <span id="auditCountBadge" class="px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-mono text-[10px] font-bold shadow-sm">0</span>
+        <span id="auditCountBadge" class="hidden px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-mono text-[10px] font-bold shadow-sm">0</span>
       </button>
 
-      <!-- 品管台按鈕 -->
       <button id="openManageBtn" class="px-3 py-1.5 rounded-xl bg-white hover:bg-craft-bgDark border-2 border-craft-line craft-shadow-sm text-xs font-bold text-craft-line flex items-center gap-1.5 transition">
         <i class="fa-solid fa-sliders text-craft-blueDark"></i>
         <span>品管台</span>
         <span id="cupCountBadge" class="ml-1 px-1.5 py-0.2 rounded-full bg-craft-yellow text-[10px] font-mono text-craft-line border border-craft-line font-bold">5</span>
       </button>
 
-      <!-- 立即放上新鋼杯按鈕 -->
       <button id="openUploadBtn" class="px-3.5 py-1.5 rounded-xl bg-craft-yellow hover:bg-craft-yellowHover text-craft-line font-black text-xs flex items-center gap-1.5 border-2 border-craft-line craft-shadow transition transform active:scale-95">
         <i class="fa-solid fa-plus text-xs"></i>
-        <span>製作新鋼杯</span>
-      </button>
-
-      <!-- 標題列收合按鈕 -->
-      <button id="hideHeaderBtn" class="w-8 h-8 rounded-xl bg-white hover:bg-craft-bgDark border-2 border-craft-line craft-shadow-sm flex items-center justify-center text-craft-line transition" title="收起標題列">
-        <i class="fa-solid fa-chevron-up text-xs"></i>
+        <span>製作新源杯</span>
       </button>
     </div>
   </header>
-
-  <!-- 浮動展開按鈕：當標題列隱藏時浮現於右上角 -->
-  <button id="showHeaderBtn" class="fixed top-3 right-4 z-40 px-3.5 py-1.5 rounded-xl bg-white/90 hover:bg-white border-2 border-craft-line craft-shadow-sm text-xs font-bold text-craft-line backdrop-blur transition-all duration-300 transform -translate-y-16 opacity-0 pointer-events-none flex items-center gap-2">
-    <i class="fa-solid fa-bars text-craft-yellow"></i>
-    <span>功能選單</span>
-  </button>
 
   <!-- 主畫面容器：全螢幕畫布 + 正中央懸浮 9:16 限動監視螢幕 -->
   <main class="flex-1 relative overflow-hidden flex items-center justify-center">
@@ -2933,96 +2916,7 @@
           updateAuditBadge();
           drawConveyor();
         }
-function setupInteractions() {
-      // 標題列收合與展開
-      let isHeaderHidden = false;
-      function toggleHeader(hide) {
-        isHeaderHidden = hide;
-        if (isHeaderHidden) {
-          topHeader.classList.add('-translate-y-full');
-          showHeaderBtn.classList.remove('-translate-y-16', 'opacity-0', 'pointer-events-none');
-          showToast('已收起標題列');
-        } else {
-          topHeader.classList.remove('-translate-y-full');
-          showHeaderBtn.classList.add('-translate-y-16', 'opacity-0', 'pointer-events-none');
-        }
-      }
 
-      hideHeaderBtn?.addEventListener('click', () => toggleHeader(true));
-      showHeaderBtn?.addEventListener('click', () => toggleHeader(false));
-
-      quickEditBtn?.addEventListener('click', () => {
-        if (stories.length > 0 && currentPlayingIndex >= 0) {
-          openEditCupModal(currentPlayingIndex);
-        }
-      });
-
-      backToPortalBtn?.addEventListener('click', () => {
-        guestPortalView.classList.remove('hidden');
-      });
-
-      const uploadModal = document.getElementById('uploadCupModal');
-      const openUpload = () => {
-        uploadModal.classList.remove('opacity-0', 'pointer-events-none');
-      };
-      const closeUpload = () => {
-        uploadModal.classList.add('opacity-0', 'pointer-events-none');
-      };
-
-      portalUploadCupBtn?.addEventListener('click', openUpload);
-      document.getElementById('openUploadBtn')?.addEventListener('click', openUpload);
-      document.getElementById('quickAddCupFromManage')?.addEventListener('click', () => {
-        document.getElementById('manageCupModal').classList.add('opacity-0', 'pointer-events-none');
-        openUpload();
-      });
-      document.getElementById('closeUploadModalBtn')?.addEventListener('click', closeUpload);
-      document.getElementById('uploadModalBackdrop')?.addEventListener('click', closeUpload);
-      document.getElementById('cancelUploadBtn')?.addEventListener('click', closeUpload);
-
-      const editModal = document.getElementById('editCupModal');
-      const closeEdit = () => {
-        editModal.classList.add('opacity-0', 'pointer-events-none');
-      };
-      document.getElementById('closeEditModalBtn')?.addEventListener('click', closeEdit);
-      document.getElementById('editModalBackdrop')?.addEventListener('click', closeEdit);
-      document.getElementById('cancelEditBtn')?.addEventListener('click', closeEdit);
-
-      const editVideoInput = document.getElementById('editVideoFileInput');
-      editVideoInput?.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          document.getElementById('editVideoTip').textContent = `已選取：${file.name}`;
-          const reader = new FileReader();
-          reader.onload = (evt) => {
-            editingUploadedVideoUrl = evt.target.result;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-
-      const editPngInput = document.getElementById('editCupImgFileInput');
-      const editPreviewImg = document.getElementById('editCupPngPreviewImg');
-      const editPreviewIcon = document.getElementById('editCupPngPreviewIcon');
-      const editClearBtn = document.getElementById('editClearCupImgBtn');
-
-      editPngInput?.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (evt) => {
-            const img = new Image();
-            img.onload = () => {
-              editingCupCustomImg = img;
-              editPreviewImg.src = evt.target.result;
-              editPreviewImg.classList.remove('hidden');
-              editPreviewIcon.classList.add('hidden');
-              editClearBtn.classList.remove('hidden');
-            };
-            img.src = evt.target.result;
-          };
-          reader.readAsDataURL(file);
-        }
-      });
         supabaseClient
           .channel('cups_realtime')
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'cups' }, (payload) => {
@@ -3098,7 +2992,6 @@ function setupInteractions() {
         if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
         if (text) text.textContent = 'LOCAL DEMO MODE';
       }
-      
     };
   </script>
 </body>
